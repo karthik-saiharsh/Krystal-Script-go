@@ -30,3 +30,9 @@ You can then run these files, or pass it onto others.
 - Supports interop with regular shell commands
 - Write once, transpile to both linux and windows
 - Open Source 😉
+
+## Limitations
+Krystal Script is only a psuedo-language. What I mean is that-Krystal Script uses Regex to parse the code and translate it into shell script.
+And because of that the parsing capabilities of the transpiler are somewhat limited. Hence, the syntax has to strictly be followed.
+Terse one-liners aren't really doable in Krystal Script.
+But, sticking to the syntax improves redability and hence is a fair trade. 🙃
