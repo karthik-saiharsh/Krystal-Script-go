@@ -48,16 +48,16 @@ func main() {
 		fmt.Println("\033[1;92mLoaded File\033[1;0m", krystal_code)
 	}
 
-	// Create an empty shell script and then keep appending to it
+	// Create an empty shell script and then keep appending to it to it line by line
 	flname_match := filename_pattern.FindStringSubmatch(krystal_code)
 	flname := ""
 	if target_platform == "linux" {
 		flname += (flname_match[1] + ".sh")
 	} else {
-		flname += (flname_match[1] + ".bat")
+		flname += (flname_match[1] + ".ps1")
 	}
 	os.Create(flname)
-	// Create an empty shell script and then keep appending to it
+	// Create an empty shell script and then keep appending to it line by line
 
 	/*
 		The way the transpiler works is, it reads the code file provided, line by line and appends each line as an element to a slice
@@ -83,6 +83,7 @@ func main() {
 	if len(code) == 0 {
 		// This step is obvious, we can't transpile a blank file....
 		fmt.Println("\033[1;91mYou have provided an empty file. What should I do with it?\033[1;0m")
+		os.Remove(flname)
 		os.Exit(1)
 	}
 
@@ -102,14 +103,19 @@ func main() {
 	*/
 
 	// Basic Regex validations defined here
-	display_pattern := regexp.MustCompile(`^display\s*\((.*?)\)$`)
+	display_pattern := regexp.MustCompile(`^display`)
 	// Basic Regex validations defined here
 	// Here we iterate over each line of the code and pass it into writer.go
 	// We validate each line with the regex pattern using if else statements
 	for index, line := range code {
 		if display_pattern.MatchString(strings.ToLower(line)) {
 			writer.Display(line, index, flname, target_platform)
+		} else {
+			fmt.Printf("\033[1;91mSyntax Error at line %d: \033[1;93m%s\033[1;0m\n", index+1, line)
+			os.Remove(flname)
+			os.Exit(1)
 		}
+
 	}
 
 }
