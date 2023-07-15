@@ -101,8 +101,8 @@ func main() {
 	*/
 
 	// Basic Regex validations defined here
-	comment_pattern := regexp.MustCompile(`^#\s*(.*?)$`)
-	tilda_comment_pattern := regexp.MustCompile(`^~\s*#\s*(.*?)$`)
+	comment_pattern := regexp.MustCompile(`^Com:\s*(.*?)$`)
+	tilda_comment_pattern := regexp.MustCompile(`^~\s*Com:\s*(.*?)$`)
 	// Basic Regex validations defined here
 	// Here we iterate over each line of the code and pass it into writer.go
 	// We validate each line with the regex pattern using if else statements
@@ -121,7 +121,7 @@ func main() {
 			// BY default comments do not get copied over to the generated script
 			continue // Continue if a comment is found or if the line is empty
 
-		} else if line == "///" {
+		} else if line == "MCom" {
 			// Toggle multi line comment scope
 			is_multi_line_comment = !is_multi_line_comment
 			continue
