@@ -13,8 +13,6 @@ import (
 	"os"
 	"regexp"
 	"strings"
-
-	"main.go/writer"
 )
 
 func main() {
@@ -103,19 +101,85 @@ func main() {
 	*/
 
 	// Basic Regex validations defined here
-	display_pattern := regexp.MustCompile(`^display`)
+	comment_pattern := regexp.MustCompile(`^#\s*(.*?)$`)
+	tilda_comment_pattern := regexp.MustCompile(`^~\s*#\s*(.*?)$`)
 	// Basic Regex validations defined here
 	// Here we iterate over each line of the code and pass it into writer.go
 	// We validate each line with the regex pattern using if else statements
+
+	// Here are some variables that check or validate scopes
+	// That is if a code is inside a for loop scope or it it is inside a multi line comment scope.
+	is_multi_line_comment := false
+	is_in_tildascope_win := false
+	is_in_tildascope_linux := false
+	// End of scope checking varialbes
+
 	for index, line := range code {
-		if display_pattern.MatchString(strings.ToLower(line)) {
-			writer.Display(line, index, flname, target_platform)
+		line := strings.TrimSpace(line)
+
+		if comment_pattern.MatchString(line) || line == "" {
+			// BY default comments do not get copied over to the generated script
+			continue // Continue if a comment is found or if the line is empty
+
+		} else if line == "///" {
+			// Toggle multi line comment scope
+			is_multi_line_comment = !is_multi_line_comment
+			continue
+
+		} else if line == "~win" {
+			// Toggling tilda scope for powershell commands
+			is_in_tildascope_win = !is_in_tildascope_win
+			continue
+
+		} else if line == "~linux" {
+			// Toggling tilda scope for shell commands
+			is_in_tildascope_linux = !is_in_tildascope_linux
+			continue
+
+		} else if is_in_tildascope_linux {
+			// Code under tilda scope for linux should directly get copied into shell script
+			// As code under tilda scope is expected to be valid regular shell commands
+			// But code under ~linux should not get copied into windows powershell scripts
+			if target_platform == "linux" {
+				write_to_file(flname, line)
+				continue
+			}
+			continue
+
+		} else if is_in_tildascope_win {
+			// Code under tilda scope for windows should directly get copied into powershell script
+			// As code under tilda scope is expected to be valid regular powershell commands
+			// But code under ~win should not get copied into linux shell scripts
+			if target_platform == "windows" {
+				write_to_file(flname, line)
+				continue
+			}
+			continue
+
+		} else if is_multi_line_comment {
+			// If it's under a multi line scope, it's going to copy all lines under that scope into
+			// the shell script
+			write_to_file(flname, ("# " + line))
+			continue
+
+		} else if tilda_comment_pattern.MatchString(line) {
+			// If the user wants the comment to get copied to the shell script
+			// Then the comment must intentionally be prefixed with a ~
+			write_to_file(flname, ("# " + tilda_comment_pattern.FindStringSubmatch(line)[1]))
+			continue
+
 		} else {
-			fmt.Printf("\033[1;91mSyntax Error at line %d: \033[1;93m%s\033[1;0m\n", index+1, line)
+			// If the line does not match any regex pattern, it is a syntax error
+			fmt.Printf("\033[1;91mSyntax Error on line %d: \033[1;93m %s\033[1;0m\n", index+1, line)
 			os.Remove(flname)
 			os.Exit(1)
 		}
+	} // end of for loop
 
-	}
+}
 
+func write_to_file(flname string, content string) {
+	file, _ := os.OpenFile(flname, os.O_APPEND|os.O_WRONLY, 0600)
+	file.WriteString(content + "\n")
+	file.Close()
 }
