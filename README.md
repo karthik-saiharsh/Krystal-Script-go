@@ -5,12 +5,11 @@
 ## A Modern Alternative To Shell Scripting
 
 ### About Krystal Script
-Krystal Script was born out of a burning desire inside me to simplify shell scripting for beginners.
-When I first moved to linux as a kid, I had a huge problem-I knew nothing about shell scripting and how to use the terminal.
-
-This got my linux journey off to a rocky start and it took me a long time before I even dared open the terminal.
-
-Hence, I decided to create a modern, easy to use alternative for shell scripting: Krystal Script.
+Krystal Script is a modern alternative to Bash scripting on linux and powershell for windows.
+Krystal Script is not a replacement for either of the shells, but as an easier alternative for beginners.
+A lot of beginners are scared to use the terminal.
+Krystal Script Aims to solve that issue.
+In Krystal Script, you write code in plain english, and the Krystal Transpiler magically generates respective script files for the target Operating system.
 
 ### Purpose:
 Krystal Script was not created as a replacement for bash.
@@ -26,7 +25,7 @@ You can then run these files, or pass it onto others.
 ## Features
 
 - English like syntax
-- Can produce both `.sh` and `.bat` files
+- Can produce both `.sh` and `.ps1` files
 - Supports interop with regular shell commands
 - Write once, transpile to both linux and windows
 - Open Source 😉
