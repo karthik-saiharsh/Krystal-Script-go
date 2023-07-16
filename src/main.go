@@ -13,6 +13,8 @@ import (
 	"os"
 	"regexp"
 	"strings"
+
+	iostream "main.go/writer"
 )
 
 func main() {
@@ -103,6 +105,7 @@ func main() {
 	// Basic Regex validations defined here
 	comment_pattern := regexp.MustCompile(`^Com:\s*(.*?)$`)
 	tilda_comment_pattern := regexp.MustCompile(`^~\s*Com:\s*(.*?)$`)
+	display_pattern := regexp.MustCompile(`^display`)
 	// Basic Regex validations defined here
 	// Here we iterate over each line of the code and pass it into writer.go
 	// We validate each line with the regex pattern using if else statements
@@ -168,18 +171,34 @@ func main() {
 			write_to_file(flname, ("# " + tilda_comment_pattern.FindStringSubmatch(line)[1]))
 			continue
 
+		} else if display_pattern.MatchString(strings.ToLower(line)) {
+			// If it matches the display pattern command
+			content := iostream.Display(line, target_platform)
+			if content != "err" {
+				write_to_file(flname, content)
+			} else {
+				syntax_error(flname, index, line)
+			}
+
 		} else {
 			// If the line does not match any regex pattern, it is a syntax error
-			fmt.Printf("\033[1;91mSyntax Error on line %d: \033[1;93m %s\033[1;0m\n", index+1, line)
-			os.Remove(flname)
-			os.Exit(1)
+			syntax_error(flname, index, line)
 		}
 	} // end of for loop
 
 }
 
 func write_to_file(flname string, content string) {
+	// This function appends to the generated shell script
 	file, _ := os.OpenFile(flname, os.O_APPEND|os.O_WRONLY, 0600)
 	file.WriteString(content + "\n")
 	file.Close()
+}
+
+func syntax_error(flname string, index int, line string) {
+	// This function spits out a syntax error command and then deletes
+	// the generated file
+	fmt.Printf("\033[1;91mSyntax Error on line %d: \033[1;93m %s\033[1;0m\n", index+1, line)
+	os.Remove(flname)
+	os.Exit(1)
 }
