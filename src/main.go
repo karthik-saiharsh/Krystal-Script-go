@@ -14,7 +14,8 @@ import (
 	"regexp"
 	"strings"
 
-	iostream "main.go/writer"
+	"main.go/fiostream"
+	"main.go/iostream"
 )
 
 func main() {
@@ -72,6 +73,7 @@ func main() {
 	scanner := bufio.NewScanner(file) // We're gonna read the file line by line and append it to code
 	if err != nil {
 		fmt.Println("\033[1;91mUnable to Open the code file you passed in\033[1;0m")
+		os.Remove(flname)
 		os.Exit(1)
 	}
 
@@ -106,6 +108,8 @@ func main() {
 	comment_pattern := regexp.MustCompile(`^Com:\s*(.*?)$`)
 	tilda_comment_pattern := regexp.MustCompile(`^~\s*Com:\s*(.*?)$`)
 	display_pattern := regexp.MustCompile(`^display`)
+	create_file_pattern := regexp.MustCompile(`^make\s*file`)
+	create_folder_pattern := regexp.MustCompile(`^make\s*folder`)
 	// Basic Regex validations defined here
 	// Here we iterate over each line of the code and pass it into writer.go
 	// We validate each line with the regex pattern using if else statements
@@ -180,12 +184,31 @@ func main() {
 				syntax_error(flname, index, line)
 			}
 
+		} else if create_file_pattern.MatchString(strings.ToLower(line)) {
+			// It it matches the command Make File
+			content := fiostream.MakeFile(line, target_platform)
+			if content != "err" {
+				write_to_file(flname, content)
+			} else {
+				syntax_error(flname, index, line)
+			}
+
+		} else if create_folder_pattern.MatchString(strings.ToLower(line)) {
+			// If it matches the command Make Folder
+			content := fiostream.MakeFolder(line, target_platform)
+			if content != "err" {
+				write_to_file(flname, content)
+			} else {
+				syntax_error(flname, index, line)
+			}
+
 		} else {
 			// If the line does not match any regex pattern, it is a syntax error
 			syntax_error(flname, index, line)
 		}
 	} // end of for loop
 
+	fmt.Printf("\033[1;92mSuccessfully Generated %s\033[1;0m\n", flname)
 }
 
 func write_to_file(flname string, content string) {
