@@ -28,9 +28,12 @@ func MakeFolder(line string, osname string) string {
 		If yes we get the content inside the "" and do further processing
 	*/
 	make_folder_pattern := regexp.MustCompile(`^Make\s*Folder\s*\(\s*"(.*?)"\s*\)$`)
+	make_folder_subdirs_pattern := regexp.MustCompile(`^Make\s*Folder\s*\(\s*enable\s+sub\s+dirs\s*"(.*?)"\s*\)$`)
 
 	if make_folder_pattern.MatchString(line) {
 		return return_code_for_mkdir(make_folder_pattern.FindStringSubmatch(line)[1], osname)
+	} else if make_folder_subdirs_pattern.MatchString(line) {
+		return return_code_for_subdirs(make_folder_subdirs_pattern.FindStringSubmatch(line)[1], osname)
 	} else {
 		return "err"
 	}
@@ -48,6 +51,14 @@ func return_code_for_touch(str string, osname string) string {
 func return_code_for_mkdir(str string, osname string) string {
 	if osname == "linux" {
 		return fmt.Sprintf("mkdir \"%s\"", str)
+	} else {
+		return fmt.Sprintf("New-Item -ItemType Directory -Path \"%s\"", str)
+	}
+}
+
+func return_code_for_subdirs(str string, osname string) string {
+	if osname == "linux" {
+		return fmt.Sprintf("mkdir -p \"%s\"", str)
 	} else {
 		return fmt.Sprintf("New-Item -ItemType Directory -Path \"%s\"", str)
 	}
