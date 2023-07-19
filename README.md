@@ -37,4 +37,4 @@ The initial alpha version of Krystal Script was called "bashX" and was written i
 
 Later on, I realized that many Windows users were also afraid of using the PowerShell or the Command Prompt. This intrigued me, and I thought things could be even simpler if I could develop a unified shell scripting language that worked out of the box on both Linux and Windows. Consequently, I abandoned bashX and decided to drop C++.
 
-That's when Krystal Script was born—a modern, unified alternative for Windows and Linux that is extremely user-friendly. Believe it or not, you can learn all of it in just a weekend.
+That's when Krystal Script was born—a modern, unified alternative for Windows and Linux that is extremely user-friendly. Believe it or not, you can learn all of it in just a weekend!
