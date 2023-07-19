@@ -53,7 +53,7 @@ func return_nonewline_display(str string, osname string) string {
 
 func return_literal_display(str string, osname string) string {
 	if osname == "linux" {
-		return fmt.Sprintf("echo '%s'", str)
+		return fmt.Sprintf("cat << EOF\n%s\nEOF", str)
 	} else {
 		return fmt.Sprintf("Write-Output '%s'", str)
 	}
