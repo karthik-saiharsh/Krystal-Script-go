@@ -110,6 +110,7 @@ func main() {
 	display_pattern := regexp.MustCompile(`^display`)
 	create_file_pattern := regexp.MustCompile(`^make\s*file`)
 	create_folder_pattern := regexp.MustCompile(`^make\s*folder`)
+	ask_pattern := regexp.MustCompile("^ask")
 	// Basic Regex validations defined here
 	// Here we iterate over each line of the code and pass it into writer.go
 	// We validate each line with the regex pattern using if else statements
@@ -196,6 +197,14 @@ func main() {
 		} else if create_folder_pattern.MatchString(strings.ToLower(line)) {
 			// If it matches the command Make Folder
 			content := fiostream.MakeFolder(line, target_platform)
+			if content != "err" {
+				write_to_file(flname, content)
+			} else {
+				syntax_error(flname, index, line)
+			}
+
+		} else if ask_pattern.MatchString(strings.ToLower(line)) {
+			content := iostream.Ask(line, target_platform)
 			if content != "err" {
 				write_to_file(flname, content)
 			} else {
